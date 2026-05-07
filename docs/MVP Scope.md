@@ -31,3 +31,7 @@ Race
 * The cars are on track driving around
 * There is telemetry on the side. It contains driver positions, gaps through sectors(points where time is logged so it's not continuous)
 * There are strategy buttons, pit stop, push normal conserve.
+
+Results
+
+* A results screen showing the order of the race.
