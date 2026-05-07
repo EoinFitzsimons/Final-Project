@@ -1,6 +1,6 @@
 # MVP Scope
 
-What do I need to be in the project for it to be suitable for an undergrad final project? It is a racing simulation.I want a GUI to display the simulations as cars racing on a track.
+What do I need to be in the project for it to be suitable for an undergrad final project? It is a racing simulation. I want a GUI to display the simulations as cars racing on a track.
 
 In terms of entities that would exist, I have:
 
@@ -14,3 +14,16 @@ I want the drivers to be agents capable of making decisions based on the paramet
 I want the user to be in control of one driver, and be able to dictate how hard they push, when they make pitstops, how hard they battle.
 
 The AI cars/driver and user controlled should share all parameters available
+
+In terms of screens for the UI
+
+Main Menu
+
+* User selects a driver
+* There are instructions on what the user can do
+
+Race
+
+* The cars are on track driving around
+* There is telemetry on the side. It contains driver positions, gaps through sectors(points where time is logged so it's not continuous)
+* There are strategy buttons, pit stop, push normal conserve.
