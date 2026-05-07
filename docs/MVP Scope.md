@@ -2,6 +2,8 @@
 
 What do I need to be in the project for it to be suitable for an undergrad final project? It is a racing simulation. I want a GUI to display the simulations as cars racing on a track.
 
+## Database
+
 In terms of entities that would exist, I have:
 
 * Car(ID, Driver, Colour)
@@ -14,6 +16,8 @@ I want the drivers to be agents capable of making decisions based on the paramet
 I want the user to be in control of one driver, and be able to dictate how hard they push, when they make pitstops, how hard they battle.
 
 The AI cars/driver and user controlled should share all parameters available
+
+## GUI
 
 In terms of screens for the UI
 
