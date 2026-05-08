@@ -1,37 +1,95 @@
+
 # MVP Scope
 
-What do I need to be in the project for it to be suitable for an undergrad final project? It is a racing simulation. I want a GUI to display the simulations as cars racing on a track.
+A deterministic motorsport management simulation where the user controls the strategy of a single driver rather than directly driving the car themselves. The simulation is based on timing gaps between competitors rather than physical spatial awareness on the track. Drivers make decisions based on factors such as tyre wear, grip, race position, sector gaps, and number of laps remaining.
+
+The project is agent based, with AI drivers operating under the same information and limitations as the user controlled driver. Behaviour is controlled through predefined strategy states such as push, normal and conserve. These influence things such as tyre wear rate and performance over the race.
+
+The simulation is displayed through a 2d birds’ eye GUI representation of a race track. The visualisation is a representation of the simulation state rather than a physics simulation or collision system.
 
 ## Database
 
-In terms of entities that would exist, I have:
+### Core Entities
 
-* Car(ID, Driver, Colour)
-* Driver(ID, Age, Name, Skills, Stats)
-* Track(ID, Name, Location, #Turns, Length, Other Characteristics)
-* RaceResult(Track, Drivers, DriverPositions, #Laps, Time)
+* Car(ID, DriverID, Colour)
+* Driver(ID, Name, Age, Skill, Aggression, Consistency)
+* Track(ID, Name, Location, Length, NumberOfTurns)
+* RaceResult(ID, TrackID, DriverID, Position, TotalTime, LapsCompleted)
 
-I want the drivers to be agents capable of making decisions based on the parameters around them, and internal to them.
+The database exists to:
 
-I want the user to be in control of one driver, and be able to dictate how hard they push, when they make pitstops, how hard they battle.
+* Store driver, car and track data
+* Store race results
+* Allow repeatable race simulations with different configurations
+* Provide data to the simulation engine and GUI
 
-The AI cars/driver and user controlled should share all parameters available
+## Simulation Scope
+
+### Included in MVP
+
+* Deterministic simulation loop
+* AI driver behaviour states
+* Push / Normal / Conserve modes
+* Tyre wear affecting grip and performance
+* Sector timing and race gaps
+* Lap counting and race finishing
+* Pit stop decisions
+* Race results and finishing order
+* 2d race visualisation
+* Telemetry display
+* User controlled strategy inputs
+* Multiple AI controlled competitors
+
+### Explicitly Out of Scope
+
+* Realistic physics simulation
+* Collision systems
+* Full spatial awareness between cars
+* Suspension, aerodynamics or engine simulation
+* Multiplayer
+* Career mode
+* Financial systems
+* Team staffing systems
+* Contract systems
+* Persistent world simulation
+* Real time weather systems
 
 ## GUI
 
-In terms of screens for the UI
-
-Main Menu
+### Main Menu
 
 * User selects a driver
-* There are instructions on what the user can do
+* User selects track/race configuration
+* Instructions/help screen
 
-Race
+### Race Screen
 
-* The cars are on track driving around
-* There is telemetry on the side. It contains driver positions, gaps through sectors(points where time is logged so it's not continuous)
-* There are strategy buttons, pit stop, push normal conserve.
+* Cars displayed moving around a 2d track
+* Telemetry panel showing:
+  * Driver positions
+  * Sector gaps
+  * Current strategy mode
+  * Tyre condition
+  * Lap count
+* User strategy controls:
+  * Push
+  * Normal
+  * Conserve
+  * Pit stop request
 
-Results
+### Results Screen
 
-* A results screen showing the order of the race.
+* Finishing positions
+* Total race times
+* Sector/lap statistics
+* Tyre and strategy summary
+
+## MVP Goal
+
+The goal of the MVP is to demonstrate:
+
+* Deterministic agent based race simulation
+* Strategy driven race outcomes
+* A functioning GUI connected to the simulation engine
+* Repeatable simulation behaviour under fixed seeds
+* Expandable architecture for future development beyond undergraduate project scope
