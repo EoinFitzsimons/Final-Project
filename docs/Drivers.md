@@ -21,7 +21,7 @@
 | Age         | To build up a persona                                          |
 | Nationality | To build up a persona                                          |
 | Speed       | Affects acceleration out of a turn and max speed on a straight |
-| Handling    | Affects speed loss in a corner                                 |
+| Handling    | Affects speed loss in a corner and tyrewear                    |
 | Aggression  | Likelihood of attempting an overtake                           |
 | Consistency | Affects all other skills                                       |
 
