@@ -1,0 +1,68 @@
+{
+  "id": 0,
+  "name": "Oval Test Track",
+  "location": "Test Location",
+  "type": "oval",
+  "total_length_km": 5.0,
+  "total_laps": 20,
+  "track_width_m": 14,
+  "surface_grip": 100,
+  "has_pit_lane": false,
+  "pit_lane_length_km": 0.0,
+  "start_finish_position": 0,
+  "checkpoints": [
+    {
+      "id": 1,
+      "name": "Start Finish",
+      "position": 0
+    },
+    {
+      "id": 2,
+      "name": "Sector 1",
+      "position": 0.25
+    },
+    {
+      "id": 3,
+      "name": "Sector 2",
+      "position": 0.5
+    },
+    {
+      "id": 4,
+      "name": "Sector 3",
+      "position": 0.75
+    }
+  ],
+  "segments": [
+    {
+      "id": 1,
+      "name": "Main Straight",
+      "type": "straight",
+      "length_km": 1.25,
+      "grip_modifier": 0
+    },
+    {
+      "id": 2,
+      "name": "Turn 1",
+      "type": "corner",
+      "angle_degrees": 180,
+      "length_km": 1.25,
+      "grip_modifier": -10
+    },
+    {
+      "id": 3,
+      "name": "Back Straight",
+      "type": "straight",
+      "length_km": 1.25,
+      "grip_modifier": 0
+    },
+    {
+      "id": 4,
+      "name": "Turn 2",
+      "type": "corner",
+      "angle_degrees": 180,
+      "length_km": 1.25,
+      "grip_modifier": -10
+    }
+  ],
+  "comment": "Oval track. Position refers to the percentage progress around the track."
+}
