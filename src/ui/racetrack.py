@@ -15,18 +15,18 @@ from src.core.track_geometry import build_layout_paths, checkpoint_point_on_layo
 from src.models.track import TrackDefinition, load_track_definition
 
 
-class RaceTrackWidget(QWidget):
-	def __init__(self, track: TrackDefinition, parent: QWidget | None = None) -> None:
+class RaceTrackWidget(QWidget): #This line defines a new class called RaceTrackWidget that inherits from QWidget
+	def __init__(self, track: TrackDefinition, parent: QWidget | None = None) -> None: #This line defines the constructor method for the RaceTrackWidget class. It takes three parameters: self, which refers to the instance of the class being created; track, which is expected to be an instance of TrackDefinition that contains the data for the racetrack layout, and parent, which is an optional parameter that can be used to specify a parent widget for this widget. The constructor does not return any value, the return type is None.
 		super().__init__(parent)
 		self._track = track
 		self.setMinimumSize(900, 600)
 
-	def paintEvent(self, event) -> None:  # type: ignore[override]
+	def paintEvent(self, event) -> None:  # type: ignore[override] #This line defines a method called paintEvent that takes an event parameter and returns None. The paintEvent method is a special method in PyQt6 that is called whenever the widget needs to be repainted, such as when it is first shown or when it is resized. The type: ignore[override] comment is used to suppress a type checking error that occurs because the paintEvent method does not have the same signature as the one defined in the base class QWidget.
 		painter = QPainter(self)
 		painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 		painter.fillRect(self.rect(), QColor("#10131a"))
 
-		outer_path, inner_path, center, half_straight, turn_r, tw = build_layout_paths(self._track, float(self.width()), float(self.height()))
+		outer_path, inner_path, center, half_straight, turn_r, tw = build_layout_paths(self._track, float(self.width()), float(self.height())) #This line calls the build_layout_paths function from the track_geometry module, passing in the track definition and the width and height of the widget as floating-point numbers. The function returns six values: outer_path, inner_path, center, half_straight, turn_r, and tw. These values represent the geometric properties of the racetrack layout, such as the paths for the outer and inner edges of the track, the center point of the track, the length of the straight sections, the radius of the turns, and the track width.
 		track_band = outer_path.subtracted(inner_path)
 
 		painter.setPen(Qt.PenStyle.NoPen)
@@ -53,7 +53,7 @@ class TrackPreviewWindow(QWidget):
 		layout.addWidget(RaceTrackWidget(track))
 
 
-def main() -> int:
+def main() -> int: #This line defines a function called main that takes no parameters and returns an integer. The main function is the entry point of the program, where the application is initialised and the main window is created and shown.
 	app = QApplication(sys.argv)
 	track_path = Path(__file__).resolve().parents[1] / "data" / "track.json"
 	track = load_track_definition(track_path)
