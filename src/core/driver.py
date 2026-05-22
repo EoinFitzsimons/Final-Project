@@ -1,3 +1,4 @@
+'''
 FUNCTION GenerateDriver()
 
     CREATE Driver
@@ -142,5 +143,100 @@ FUNCTION GenerateDriver()
     END IF
 
     RETURN Driver
-
 END FUNCTION
+'''
+from dataclasses import dataclass
+from itertools import count
+from random import choice, randint
+
+_DRIVER_ID_COUNTER = count(0)
+
+ARCHETYPES = (
+    "Veteran Defender",
+    "Wild Rookie",
+    "Calculated Racer",
+    "Speed Demon",
+    "Street Fighter",
+    "Seasoned Veteran",
+    "Future Champion",
+    "Ol Reliable",
+    "Pay Driver",
+    "Reigning Champion",
+)
+
+FIRST_NAMES = ("Alex", "Jordan", "Taylor", "Casey", "Morgan", "Riley", "Jamie", "Quinn", "Avery", "Parker")
+LAST_NAMES = ("Stone", "Brooks", "Hart", "Cole", "Reed", "Bennett", "Foster", "Hayes", "Shaw", "Vaughn")
+
+
+@dataclass(frozen=True)
+class DriverStats:
+    speed: int
+    handling: int
+    aggression: int
+    consistency: int
+
+
+@dataclass(frozen=True)
+class Driver:
+    id: int
+    name: str
+    archetype: str
+    age: int
+    stats: DriverStats
+
+
+def _random_name() -> str:
+    return f"{choice(FIRST_NAMES)} {choice(LAST_NAMES)}"
+
+
+def _random_stats(ranges: tuple[tuple[int, int], tuple[int, int], tuple[int, int], tuple[int, int]]) -> DriverStats:
+    speed, handling, aggression, consistency = ranges
+    return DriverStats(
+        speed=randint(*speed),
+        handling=randint(*handling),
+        aggression=randint(*aggression),
+        consistency=randint(*consistency),
+    )
+
+
+def generate_driver() -> Driver:
+    archetype = choice(ARCHETYPES)
+
+    if archetype == "Veteran Defender":
+        age = randint(36, 50)
+        stats = _random_stats(((0, 33), (67, 100), (0, 33), (67, 100)))
+    elif archetype == "Wild Rookie":
+        age = randint(16, 24)
+        stats = _random_stats(((67, 100), (67, 100), (67, 100), (0, 33)))
+    elif archetype == "Calculated Racer":
+        age = randint(25, 35)
+        stats = _random_stats(((34, 66), (67, 100), (0, 33), (67, 100)))
+    elif archetype == "Speed Demon":
+        age = randint(25, 35)
+        stats = _random_stats(((67, 100), (34, 66), (34, 66), (0, 33)))
+    elif archetype == "Street Fighter":
+        age = randint(25, 35)
+        stats = _random_stats(((34, 66), (0, 33), (67, 100), (34, 66)))
+    elif archetype == "Seasoned Veteran":
+        age = randint(36, 50)
+        stats = _random_stats(((34, 66), (67, 100), (0, 33), (67, 100)))
+    elif archetype == "Future Champion":
+        age = randint(16, 24)
+        stats = _random_stats(((67, 100), (67, 100), (34, 66), (34, 66)))
+    elif archetype == "Ol Reliable":
+        age = randint(36, 50)
+        stats = _random_stats(((0, 33), (34, 66), (0, 33), (34, 66)))
+    elif archetype == "Pay Driver":
+        age = randint(36, 50)
+        stats = _random_stats(((0, 33), (0, 33), (0, 33), (0, 33)))
+    else:
+        age = randint(25, 35)
+        stats = _random_stats(((67, 100), (67, 100), (67, 100), (67, 100)))
+
+    return Driver(
+        id=next(_DRIVER_ID_COUNTER),
+        name=_random_name(),
+        archetype=archetype,
+        age=age,
+        stats=stats,
+    )
