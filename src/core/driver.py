@@ -148,6 +148,7 @@ END FUNCTION
 from dataclasses import dataclass
 from itertools import count
 from random import choice, randint
+from typing import Optional
 
 _DRIVER_ID_COUNTER = count(0)
 
@@ -164,8 +165,63 @@ ARCHETYPES = (
     "Reigning Champion",
 )
 
-FIRST_NAMES = ("Alex", "Jordan", "Taylor", "Casey", "Morgan", "Riley", "Jamie", "Quinn", "Avery", "Parker")
-LAST_NAMES = ("Stone", "Brooks", "Hart", "Cole", "Reed", "Bennett", "Foster", "Hayes", "Shaw", "Vaughn")
+NATIONALITIES = (
+    "British",
+    "French",
+    "German",
+    "Italian",
+    "Spanish",
+    "Brazilian",
+    "Japanese",
+    "Mexican",
+    "Swedish",
+    "Australian",
+)
+
+# Mapping of nationality -> (first_names_tuple, last_names_tuple)
+NAMES_BY_NATIONALITY = {
+    "British": (
+        ("Oliver", "Jack", "George", "Harry"),
+        ("Smith", "Bennett", "Hughes", "Clark"),
+    ),
+    "French": (
+        ("Antoine", "Lucas", "Jules", "Pierre"),
+        ("Dubois", "Moreau", "Lefèvre", "Laurent"),
+    ),
+    "German": (
+        ("Lukas", "Max", "Nico", "Jonas"),
+        ("Müller", "Schmidt", "Fischer", "Weber"),
+    ),
+    "Italian": (
+        ("Matteo", "Luca", "Alessandro", "Marco"),
+        ("Rossi", "Bianchi", "Romano", "Conti"),
+    ),
+    "Spanish": (
+        ("Alejandro", "Carlos", "Javier", "Sergio"),
+        ("García", "Fernández", "Martínez", "López"),
+    ),
+    "Brazilian": (
+        ("João", "Pedro", "Rafael", "Lucas"),
+        ("Souza", "Silva", "Oliveira", "Pereira"),
+    ),
+    "Japanese": (
+        ("Takumi", "Yuki", "Haruki", "Kenta"),
+        ("Sato", "Suzuki", "Takahashi", "Tanaka"),
+    ),
+    "Mexican": (
+        ("Diego", "Miguel", "José", "Luis"),
+        ("Hernández", "Rodríguez", "González", "Ramírez"),
+    ),
+    "Swedish": (
+        ("Erik", "Johan", "Viktor", "Anton"),
+        ("Andersson", "Johansson", "Karlsson", "Larsson"),
+    ),
+    "Australian": (
+        ("Liam", "Noah", "Ethan", "James"),
+        ("Wilson", "Taylor", "Brown", "Harris"),
+    ),
+}
+
 
 
 @dataclass(frozen=True)
@@ -180,13 +236,23 @@ class DriverStats:
 class Driver:
     id: int
     name: str
+    nationality: str
     archetype: str
     age: int
     stats: DriverStats
 
 
-def _random_name() -> str:
-    return f"{choice(FIRST_NAMES)} {choice(LAST_NAMES)}"
+def _random_name(nationality: Optional[str] = None) -> tuple[str, str]:
+    """Return (full_name, nationality).
+
+    If `nationality` is None a nationality is chosen at random.
+    """
+    if nationality is None:
+        nationality = choice(NATIONALITIES)
+
+    # select first/last lists for the chosen nationality
+    first_names, last_names = NAMES_BY_NATIONALITY[nationality]
+    return f"{choice(first_names)} {choice(last_names)}", nationality
 
 
 def _random_stats(ranges: tuple[tuple[int, int], tuple[int, int], tuple[int, int], tuple[int, int]]) -> DriverStats:
@@ -233,9 +299,12 @@ def generate_driver() -> Driver:
         age = randint(25, 35)
         stats = _random_stats(((67, 100), (67, 100), (67, 100), (67, 100)))
 
+    name, nationality = _random_name()
+
     return Driver(
         id=next(_DRIVER_ID_COUNTER),
-        name=_random_name(),
+        name=name,
+        nationality=nationality,
         archetype=archetype,
         age=age,
         stats=stats,
