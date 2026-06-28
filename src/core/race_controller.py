@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Dict
 import random
-import math
 
 from src.core.car import Car, create_car
 from src.core.driver import Driver, generate_driver
@@ -16,16 +15,6 @@ class RaceResult:
 
 
 class RaceController:
-    """
-    Minimal deterministic race simulation controller.
-
-    Responsibilities:
-    - Initialise drivers and cars
-    - Run tick-based race loop
-    - Update lap progression
-    - Determine finishing order
-    """
-
     def __init__(
         self,
         track: TrackDefinition,
@@ -39,77 +28,75 @@ class RaceController:
         self.drivers: List[Driver] = []
         self.cars: List[Car] = []
 
-        self.lap_distance = self.track.total_length_km * 1000.0  # convert to metres
+        # Convert the track length from kilometres to metres.
+        self.lap_distance = self.track.total_length_km * 1000.0
+
+        # Calculate the total race distance.
         self.race_distance = self.lap_distance * self.track.total_laps
 
-        self._progress: Dict[int, float] = {}  # car_id -> metres completed
+        # Store the distance travelled by each car.
+        self._progress: Dict[int, float] = {}
 
     def setup(self) -> None:
-        """
-        Creates drivers and cars and initialises race state.
-        """
-
+        # Generate the drivers for the race.
         self.drivers = [generate_driver() for _ in range(self.num_cars)]
         driver_ids = [d.id for d in self.drivers]
 
+        # Create a car for each driver using the starting grid order.
         self.cars = [
             create_car(driver_ids, starting_grid_position=i + 1)
             for i in range(self.num_cars)
         ]
 
+        # Initialise every car's progress to zero metres.
         for car in self.cars:
             self._progress[car.id] = 0.0
 
     def _calculate_tick_speed(self, car: Car, driver: Driver) -> float:
-        """
-        Simplified speed model:
-        - base top speed influenced by driver speed stat
-        - handling reduces instability (not modelled deeply here)
-        """
-
+        # Convert driver statistics into scaling factors.
         speed_factor = driver.stats.speed / 100.0
         consistency_factor = driver.stats.consistency / 100.0
 
+        # Calculate the maximum speed for this driver and car.
         max_speed = car.base_top_speed * (0.5 + speed_factor * 0.5)
 
-        # randomness simulates race variance
+        # Introduce a small amount of random variation.
         variance = random.uniform(0.95, 1.05)
 
+        # Apply consistency and variance to the final speed.
         effective_speed = max_speed * consistency_factor * variance
 
-        # convert km/h to m per tick (assume 1 tick = 1 second)
+        # Convert km/h to m/s (one simulation tick equals one second).
         return (effective_speed * 1000.0) / 3600.0
 
     def step(self) -> None:
-        """
-        Advances the simulation by one tick.
-        """
-
+        # Update every active car for one simulation tick.
         for car, driver in zip(self.cars, self.drivers):
+
+            # Skip cars that have already finished.
             if car.race_status != "Active":
                 continue
 
+            # Calculate the distance travelled during this tick.
             speed_mps = self._calculate_tick_speed(car, driver)
             self._progress[car.id] += speed_mps
 
-            # update car state
+            # Store the current speed in km/h.
             car.current_speed = speed_mps * 3.6
 
-            # lap progression
+            # Update the current lap from the total distance travelled.
             completed_laps = int(self._progress[car.id] // self.lap_distance)
             car.current_lap = completed_laps
 
-            # finish condition
+            # Mark the car as finished once the race distance is reached.
             if self._progress[car.id] >= self.race_distance:
                 car.race_status = "Finished"
 
     def run(self) -> RaceResult:
-        """
-        Runs full race simulation.
-        """
-
+        # Create the drivers, cars and initial race state.
         self.setup()
 
+        # Continue running until all cars finish or the tick limit is reached.
         for _ in range(self.max_ticks):
             active_cars = [c for c in self.cars if c.race_status == "Active"]
 
@@ -118,7 +105,7 @@ class RaceController:
 
             self.step()
 
-        # final ordering
+        # Order cars by the total distance travelled.
         ordered = sorted(
             self.cars,
             key=lambda c: self._progress[c.id],
@@ -129,16 +116,19 @@ class RaceController:
 
 
 if __name__ == "__main__":
-    from src.models.track import load_track_definition
     from pathlib import Path
+    from src.models.track import load_track_definition
 
+    # Load the track configuration from disk.
     track = load_track_definition(
         Path(__file__).resolve().parents[2] / "src" / "data" / "track.json"
     )
 
+    # Create and run the race simulation.
     controller = RaceController(track, num_cars=10, max_ticks=3000)
     result = controller.run()
 
+    # Display the finishing order.
     print("\nFINISHING ORDER:")
     for i, car in enumerate(result.finishing_order, 1):
         print(f"{i}. Car {car.id} (Driver {car.driver_id}) - Laps: {car.current_lap}")
