@@ -151,10 +151,11 @@ class SettingsDialog(QDialog):
 
 
 class MainMenu(QWidget):
-    def __init__(self):
+    def __init__(self, on_start_race=None):
         super().__init__()
 
         self.setWindowTitle("Momentum")
+        self._on_start_race = on_start_race
 
         layout = QVBoxLayout(self)
 
@@ -168,8 +169,8 @@ class MainMenu(QWidget):
         layout.addWidget(settings)
 
     def start_race(self):
-        # placeholder for race launch logic
-        pass
+        if self._on_start_race is not None:
+            self._on_start_race()
 
     def open_settings(self):
         # open settings dialog and reapply accessibility on save
