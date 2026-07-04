@@ -15,13 +15,13 @@ from PyQt6.QtWidgets import (
 )
 
 
-# default accessibility configuration
+# Default accessibility values keep the UI usable even before any settings file exists.
 DEFAULT_SETTINGS = {
     "theme": "standard",
     "ui_scale": 100,
 }
 
-# file used for persistence
+# Store the settings file in the user's home directory so it survives app restarts.
 SETTINGS_PATH = os.path.join(
     os.path.expanduser("~"),
     ".momentum_accessibility.json"
@@ -29,7 +29,7 @@ SETTINGS_PATH = os.path.join(
 
 
 def load_settings():
-    # load settings from disk or fallback to defaults
+    # Load persisted settings, but fall back to defaults if the file is missing or invalid.
     if not os.path.exists(SETTINGS_PATH):
         return dict(DEFAULT_SETTINGS)
 
@@ -42,13 +42,13 @@ def load_settings():
 
 
 def save_settings(settings):
-    # persist validated settings
+    # Save only validated settings so corruption cannot leak back into the file.
     with open(SETTINGS_PATH, "w", encoding="utf-8") as f:
         json.dump(validate_settings(settings), f, indent=2)
 
 
 def validate_settings(raw):
-    # ensure only supported values are used
+    # Clamp user-provided values to the small set of options the UI actually supports.
     settings = dict(DEFAULT_SETTINGS)
 
     if isinstance(raw, dict):
@@ -71,7 +71,7 @@ def validate_settings(raw):
 
 
 def get_theme(theme):
-    # return stylesheet for selected theme
+    # Each theme is represented as a full stylesheet so the whole UI changes together.
     if theme == "high_contrast":
         return """
         QWidget { background: black; color: white; }
@@ -91,7 +91,7 @@ def get_theme(theme):
 
 
 def apply_accessibility(app, settings):
-    # apply font scaling and theme globally
+    # Apply font scaling and theme globally so the entire interface updates at once.
     font = app.font()
 
     base_size = font.pointSizeF()
@@ -142,7 +142,7 @@ class SettingsDialog(QDialog):
         layout.addWidget(buttons)
 
     def save(self):
-        # save updated settings and close dialog
+        # Persist the updated values, then close the dialog if validation succeeds.
         save_settings({
             "theme": self.theme.currentData(),
             "ui_scale": self.scale.value(),
@@ -173,14 +173,14 @@ class MainMenu(QWidget):
             self._on_start_race()
 
     def open_settings(self):
-        # open settings dialog and reapply accessibility on save
+        # Reapply accessibility immediately after a successful settings save.
         dlg = SettingsDialog(self)
         if dlg.exec():
             apply_accessibility(QApplication.instance(), load_settings())
 
 
 def main():
-    # create application and apply accessibility settings
+    # Create the app, apply accessibility defaults, then show the main menu.
     app = QApplication(sys.argv)
 
     apply_accessibility(app, load_settings())

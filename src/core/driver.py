@@ -250,7 +250,7 @@ def _random_name(nationality: Optional[str] = None) -> tuple[str, str]:
     if nationality is None:
         nationality = choice(NATIONALITIES)
 
-    # select first/last lists for the chosen nationality
+    # Use the chosen nationality to keep the generated name consistent with the driver's profile.
     first_names, last_names = NAMES_BY_NATIONALITY[nationality]
     return f"{choice(first_names)} {choice(last_names)}", nationality
 
