@@ -3,6 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List, Dict
 import random
+from pathlib import Path
+
+if __package__ in {None, ""}:
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.core.car import Car, create_car
 from src.core.driver import Driver, generate_driver
@@ -115,8 +121,7 @@ class RaceController:
         return RaceResult(finishing_order=ordered)
 
 
-if __name__ == "__main__":
-    from pathlib import Path
+def main() -> int:
     from src.models.track import load_track_definition
 
     # Load the track configuration from disk.
@@ -132,3 +137,9 @@ if __name__ == "__main__":
     print("\nFINISHING ORDER:")
     for i, car in enumerate(result.finishing_order, 1):
         print(f"{i}. Car {car.id} (Driver {car.driver_id}) - Laps: {car.current_lap}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
