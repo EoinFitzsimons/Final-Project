@@ -13,6 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.core.track_geometry import build_layout_paths, checkpoint_point_on_layout
 from src.models.track import TrackDefinition, load_track_definition
+from src.ui.colours import CHECKPOINT, RACE_BACKGROUND, ROAD
 
 
 class RaceTrackWidget(QWidget): #This line defines a new class called RaceTrackWidget that inherits from QWidget
@@ -24,17 +25,17 @@ class RaceTrackWidget(QWidget): #This line defines a new class called RaceTrackW
 	def paintEvent(self, event) -> None:  # type: ignore[override] #This line defines a method called paintEvent that takes an event parameter and returns None. The paintEvent method is a special method in PyQt6 that is called whenever the widget needs to be repainted, such as when it is first shown or when it is resized. The type: ignore[override] comment is used to suppress a type checking error that occurs because the paintEvent method does not have the same signature as the one defined in the base class QWidget.
 		painter = QPainter(self)
 		painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-		painter.fillRect(self.rect(), QColor("#10131a"))
+		painter.fillRect(self.rect(), QColor(RACE_BACKGROUND))
 
-		outer_path, inner_path, center, half_straight, turn_r, tw = build_layout_paths(self._track, float(self.width()), float(self.height())) #This line calls the build_layout_paths function from the track_geometry module, passing in the track definition and the width and height of the widget as floating-point numbers. The function returns six values: outer_path, inner_path, center, half_straight, turn_r, and tw. These values represent the geometric properties of the racetrack layout, such as the paths for the outer and inner edges of the track, the center point of the track, the length of the straight sections, the radius of the turns, and the track width.
+		outer_path, inner_path, center, half_straight, turn_r, _ = build_layout_paths(self._track, float(self.width()), float(self.height())) #This line calls the build_layout_paths function from the track_geometry module, passing in the track definition and the width and height of the widget as floating-point numbers. The function returns six values: outer_path, inner_path, center, half_straight, turn_r, and tw. These values represent the geometric properties of the racetrack layout, such as the paths for the outer and inner edges of the track, the center point of the track, the length of the straight sections, the radius of the turns, and the track width.
 		track_band = outer_path.subtracted(inner_path)
 
 		painter.setPen(Qt.PenStyle.NoPen)
-		painter.setBrush(QColor("#303640"))
+		painter.setBrush(QColor(ROAD))
 		painter.drawPath(track_band)
 
-		painter.setPen(QPen(QColor("#ffd166"), 1))
-		painter.setBrush(QColor("#ffd166"))
+		painter.setPen(QPen(QColor(CHECKPOINT), 1))
+		painter.setBrush(QColor(CHECKPOINT))
 		for checkpoint in self._track.checkpoints:
 			point = checkpoint_point_on_layout(center, half_straight, turn_r, checkpoint.position)
 			painter.drawEllipse(point, 5.0, 5.0)

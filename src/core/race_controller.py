@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import List, Dict
-import random
+from random import SystemRandom
 from pathlib import Path
 
 if __package__ in {None, ""}:
@@ -11,8 +11,11 @@ if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.core.car import Car, create_car
-from src.core.driver import Driver, generate_driver
+from src.core.driver import ARCHETYPES, Driver, generate_driver
 from src.models.track import TrackDefinition
+
+
+_RNG = SystemRandom()
 
 
 @dataclass
@@ -45,7 +48,13 @@ class RaceController:
 
     def setup(self) -> None:
         # Generate the drivers for the race.
-        self.drivers = [generate_driver() for _ in range(self.num_cars)]
+        archetypes = list(ARCHETYPES)
+        _RNG.shuffle(archetypes)
+
+        self.drivers = [
+            generate_driver(archetypes[i % len(archetypes)])
+            for i in range(self.num_cars)
+        ]
         driver_ids = [d.id for d in self.drivers]
 
         # Create a car for each driver using the starting grid order.
@@ -67,7 +76,7 @@ class RaceController:
         max_speed = car.base_top_speed * (0.5 + speed_factor * 0.5)
 
         # Introduce a small amount of random variation.
-        variance = random.uniform(0.95, 1.05)
+        variance = _RNG.uniform(0.95, 1.05)
 
         # Apply consistency and variance to the final speed.
         effective_speed = max_speed * consistency_factor * variance

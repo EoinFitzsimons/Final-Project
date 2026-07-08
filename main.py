@@ -5,9 +5,10 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import QApplication
 
+from src.core.race_controller import RaceController
 from src.models.track import load_track_definition
 from src.ui.mainmenu import MainMenu, apply_accessibility, load_settings
-from src.ui.racetrack import TrackPreviewWindow
+from src.ui.race import RaceWindow
 
 
 def build_app() -> QApplication:
@@ -24,12 +25,16 @@ def main() -> int:
     track_path = Path(__file__).resolve().parent / "src" / "data" / "track.json"
     track = load_track_definition(track_path)
 
-    # Keep the preview window alive up front so the menu can reveal it on demand.
-    track_window = TrackPreviewWindow(track)
-    track_window.resize(1100, 800)
+    # Create the shared race controller once so the menu roster and race window show the same field.
+    controller = RaceController(track, num_cars=10, max_ticks=5000)
+    controller.setup()
 
-    # Wire the menu action directly to the preview window's show method.
-    menu_window = MainMenu(on_start_race=track_window.show)
+    # Keep the live race window alive up front so the menu can reveal it on demand.
+    race_window = RaceWindow(track, controller)
+    race_window.resize(1200, 850)
+
+    # Wire the menu action directly to the live race window's show method.
+    menu_window = MainMenu(controller=controller, on_start_race=race_window.show)
     menu_window.show()
 
     # Hand control over to Qt's event loop and return its exit code to the shell.

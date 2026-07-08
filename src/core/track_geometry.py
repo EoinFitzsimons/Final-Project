@@ -55,26 +55,28 @@ def build_layout_paths(track: TrackDefinition, canvas_width: float, canvas_heigh
     return outer, inner, center, half_straight, turn_r, track_width_px
 
 
-def checkpoint_point_on_layout(center: QPointF, half_straight: float, turn_r: float, position: float) -> QPointF: #This function takes the center point of the track, the length of the half straight section, the radius of the turns, and a normalised position along the track's perimeter as input and returns a QPointF object representing the position of a checkpoint on the track layout. The function calculates the total perimeter of the track based on the straight sections and turns, and then determines the exact position of the checkpoint by traversing along the track's layout according to the given normalised position. The checkpoint is placed at the appropriate location on either the straight sections or the turns based on its position along the perimeter.
+def checkpoint_point_on_layout(center: QPointF, half_straight: float, turn_r: float, position: float) -> QPointF: #This function takes the center point of the track, the length of the half straight section, the radius of the turns, and a normalised position along the track's perimeter as input and returns a QPointF object representing the position of a checkpoint on the track layout. The function places quarter checkpoints at stable visual landmarks on the oval so the same sector stays in the same place even when the widget size changes.
 
-    straight = half_straight * 2.0
-    perim = 2.0 * straight + 2.0 * pi * turn_r
-    s = (position % 1.0) * perim
+    position = position % 1.0
+    # Nudge the quarter checkpoints slightly away from the exact corners so the labels do not stack on the start/finish marker.
+    if abs(position - 0.25) < 1e-9:
+        position = 0.24
+    elif abs(position - 0.75) < 1e-9:
+        position = 1
+
     cx = center.x()
     cy = center.y()
 
-    if s < straight:
-        # top straight: from right to left
-        frac = s / straight
+    if position < 0.25:
+        # Top straight: from right to left.
+        frac = position / 0.25
         x = cx + half_straight - (2.0 * half_straight) * frac
         y = cy - turn_r
         return QPointF(x, y)
 
-    s -= straight
-    arc_len = pi * turn_r
-    if s < arc_len:
-        # left semicircle: top -> bottom
-        frac = s / arc_len
+    if position < 0.5:
+        # Left semicircle: top -> bottom.
+        frac = (position - 0.25) / 0.25
         angle = pi / 2.0 + frac * pi
         center_left_x = cx - half_straight
         center_left_y = cy
@@ -82,17 +84,15 @@ def checkpoint_point_on_layout(center: QPointF, half_straight: float, turn_r: fl
         y = center_left_y + sin(angle) * turn_r
         return QPointF(x, y)
 
-    s -= arc_len
-    if s < straight:
-        # bottom straight: left -> right
-        frac = s / straight
+    if position < 0.75:
+        # Bottom straight: left -> right.
+        frac = (position - 0.5) / 0.25
         x = cx - half_straight + (2.0 * half_straight) * frac
         y = cy + turn_r
         return QPointF(x, y)
 
-    # right semicircle
-    s -= straight
-    frac = s / arc_len
+    # Right semicircle: bottom -> top.
+    frac = (position - 0.75) / 0.25
     angle = 3.0 * pi / 2.0 + frac * pi
     center_right_x = cx + half_straight
     center_right_y = cy

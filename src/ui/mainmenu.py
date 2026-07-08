@@ -4,14 +4,33 @@ import json
 
 from PyQt6.QtWidgets import (
     QApplication,
+    QFrame,
+    QHBoxLayout,
     QWidget,
     QVBoxLayout,
     QPushButton,
     QDialog,
     QComboBox,
     QLabel,
+    QScrollArea,
     QSpinBox,
     QDialogButtonBox,
+)
+from PyQt6.QtCore import Qt
+
+from src.ui.colours import (
+    CAR_COLOURS,
+    MENU_BACKGROUND_1,
+    MENU_BACKGROUND_2,
+    MENU_ACCENT,
+    MENU_BUTTON_BACKGROUND,
+    MENU_BUTTON_BORDER,
+    MENU_FOREGROUND_1,
+    MENU_FOREGROUND_2,
+    MENU_MUTED_TEXT,
+    MENU_PANEL_BACKGROUND,
+    MENU_PANEL_BORDER,
+    MENU_PANEL_TEXT,
 )
 
 
@@ -53,7 +72,7 @@ def validate_settings(raw):
 
     if isinstance(raw, dict):
         theme = str(raw.get("theme", "standard")).strip().lower()
-        if theme not in {"standard", "high_contrast", "colorblind_safe"}:
+        if theme not in {"standard", "high_contrast", "colourblind_safe"}:
             theme = "standard"
 
         try:
@@ -72,21 +91,27 @@ def validate_settings(raw):
 
 def get_theme(theme):
     # Each theme is represented as a full stylesheet so the whole UI changes together.
+    if theme == "standard":
+        return f"""
+    QWidget {{ background: {MENU_BACKGROUND_1}; color: {MENU_FOREGROUND_1}; }}
+    QPushButton {{ background: {MENU_BUTTON_BACKGROUND}; }}
+    """
+
     if theme == "high_contrast":
         return """
         QWidget { background: black; color: white; }
         QPushButton { border: 2px solid white; background: black; }
         """
 
-    if theme == "colorblind_safe":
-        return """
-        QWidget { background: #1F2430; color: #E6E6E6; }
-        QPushButton { border: 1px solid #5DA5DA; }
+    if theme == "colourblind_safe":
+        return f"""
+        QWidget {{ background: {MENU_BACKGROUND_2}; color: {MENU_FOREGROUND_2}; }}
+        QPushButton {{ border: 1px solid {MENU_BUTTON_BORDER}; }}
         """
 
-    return """
-    QWidget { background: #353839; color: #B9F2FF; }
-    QPushButton { background: #2b2f30; }
+    return f"""
+    QWidget {{ background: {MENU_BACKGROUND_1}; color: {MENU_FOREGROUND_1}; }}
+    QPushButton {{ background: {MENU_BUTTON_BACKGROUND}; }}
     """
 
 
@@ -117,10 +142,12 @@ class SettingsDialog(QDialog):
         layout.addWidget(QLabel("Theme"))
 
         self.theme = QComboBox()
-        self.theme.addItem("Standard", "standard")
+        self.theme.addItem("Default", "standard")
         self.theme.addItem("High Contrast", "high_contrast")
-        self.theme.addItem("Colourblind Safe", "colorblind_safe")
-        self.theme.setCurrentText(self.settings["theme"])
+        self.theme.addItem("Colourblind Safe", "colourblind_safe")
+        current_index = self.theme.findData(self.settings["theme"])
+        if current_index >= 0:
+            self.theme.setCurrentIndex(current_index)
         layout.addWidget(self.theme)
 
         layout.addWidget(QLabel("UI Scale"))
@@ -150,14 +177,97 @@ class SettingsDialog(QDialog):
         self.accept()
 
 
+class DriverRosterWidget(QWidget):
+    def __init__(self, controller, parent=None):
+        super().__init__(parent)
+        self._controller = controller
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(10)
+
+        title = QLabel("Driver roster")
+        title.setStyleSheet(f"color: {MENU_PANEL_TEXT}; font-weight: 700; font-size: 16px;")
+        layout.addWidget(title)
+
+        subtitle = QLabel("Each driver is paired with a race colour and stat profile.")
+        subtitle.setWordWrap(True)
+        subtitle.setStyleSheet(f"color: {MENU_MUTED_TEXT};")
+        layout.addWidget(subtitle)
+
+        for index, driver in enumerate(self._controller.drivers):
+            color = CAR_COLOURS[index % len(CAR_COLOURS)]
+            card = QFrame()
+            card.setFrameShape(QFrame.Shape.StyledPanel)
+            card.setStyleSheet(
+                f"QFrame {{ background: {MENU_PANEL_BACKGROUND}; border: 1px solid {MENU_PANEL_BORDER}; border-radius: 10px; }}"
+            )
+
+            card_layout = QHBoxLayout(card)
+            card_layout.setContentsMargins(12, 10, 12, 10)
+            card_layout.setSpacing(12)
+
+            swatch = QLabel()
+            swatch.setFixedSize(18, 18)
+            swatch.setStyleSheet(f"background: {color}; border: 1px solid {MENU_ACCENT}; border-radius: 9px;")
+            card_layout.addWidget(swatch, alignment=Qt.AlignmentFlag.AlignTop)
+
+            details = QVBoxLayout()
+            details.setSpacing(3)
+
+            name = QLabel(f"{driver.name}  |  {driver.archetype}")
+            name.setWordWrap(True)
+            name.setStyleSheet(f"color: {MENU_PANEL_TEXT}; font-weight: 600;")
+            details.addWidget(name)
+
+            meta = QLabel(
+                f"Colour {index + 1}: {color}   •   Nationality: {driver.nationality}   •   Age: {driver.age}"
+            )
+            meta.setWordWrap(True)
+            meta.setStyleSheet(f"color: {MENU_MUTED_TEXT};")
+            details.addWidget(meta)
+
+            stats = QLabel(
+                "Speed {0}   •   Handling {1}   •   Aggression {2}   •   Consistency {3}".format(
+                    driver.stats.speed,
+                    driver.stats.handling,
+                    driver.stats.aggression,
+                    driver.stats.consistency,
+                )
+            )
+            stats.setWordWrap(True)
+            stats.setStyleSheet(f"color: {MENU_MUTED_TEXT};")
+            details.addWidget(stats)
+
+            card_layout.addLayout(details)
+            layout.addWidget(card)
+
+        layout.addStretch(1)
+
+
 class MainMenu(QWidget):
-    def __init__(self, on_start_race=None):
+    def __init__(self, controller=None, on_start_race=None):
         super().__init__()
 
         self.setWindowTitle("Momentum")
+        self._controller = controller
         self._on_start_race = on_start_race
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
+
+        header = QLabel("Momentum")
+        header.setStyleSheet(f"color: {MENU_FOREGROUND_1}; font-size: 28px; font-weight: 700;")
+        layout.addWidget(header)
+
+        intro = QLabel("Select a theme, review the field, then launch the live race.")
+        intro.setWordWrap(True)
+        intro.setStyleSheet(f"color: {MENU_MUTED_TEXT};")
+        layout.addWidget(intro)
+
+        button_row = QHBoxLayout()
+        button_row.setSpacing(12)
 
         start = QPushButton("Start Race")
         settings = QPushButton("Settings")
@@ -165,10 +275,22 @@ class MainMenu(QWidget):
         start.clicked.connect(self.start_race)
         settings.clicked.connect(self.open_settings)
 
-        layout.addWidget(start)
-        layout.addWidget(settings)
+        button_row.addWidget(start)
+        button_row.addWidget(settings)
+        layout.addLayout(button_row)
+
+        if self._controller is not None:
+            roster_scroll = QScrollArea()
+            roster_scroll.setWidgetResizable(True)
+            roster_scroll.setFrameShape(QFrame.Shape.NoFrame)
+            roster_scroll.setStyleSheet(
+                f"QScrollArea {{ background: transparent; border: 1px solid {MENU_PANEL_BORDER}; border-radius: 12px; }}"
+            )
+            roster_scroll.setWidget(DriverRosterWidget(self._controller))
+            layout.addWidget(roster_scroll, stretch=1)
 
     def start_race(self):
+        self.hide()
         if self._on_start_race is not None:
             self._on_start_race()
 
