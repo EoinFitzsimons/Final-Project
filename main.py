@@ -31,10 +31,11 @@ def main() -> int:
 
     # Keep the live race window alive up front so the menu can reveal it on demand.
     race_window = RaceWindow(track, controller)
-    race_window.resize(1200, 850)
+    race_window.resize(1920, 1080)
 
     # Wire the menu action directly to the live race window's show method.
     menu_window = MainMenu(controller=controller, on_start_race=race_window.show)
+    menu_window.resize(1920, 1080)
     menu_window.show()
 
     # Hand control over to Qt's event loop and return its exit code to the shell.

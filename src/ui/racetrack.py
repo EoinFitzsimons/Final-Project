@@ -60,7 +60,7 @@ def main() -> int: #This line defines a function called main that takes no param
 	track = load_track_definition(track_path)
 
 	window = TrackPreviewWindow(track)
-	window.resize(1100, 800)
+	window.resize(1920, 1080)
 	window.show()
 	return app.exec()
 

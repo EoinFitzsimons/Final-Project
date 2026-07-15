@@ -1,6 +1,7 @@
 import sys
 import os
 import json
+from pathlib import Path
 
 from PyQt6.QtWidgets import (
     QApplication,
@@ -17,6 +18,7 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox,
 )
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
 
 from src.ui.colours import (
     CAR_COLOURS,
@@ -45,6 +47,9 @@ SETTINGS_PATH = os.path.join(
     os.path.expanduser("~"),
     ".momentum_accessibility.json"
 )
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+LOGO_PATH = PROJECT_ROOT / "assets" / "Momentum Logo.png"
 
 
 def load_settings():
@@ -250,12 +255,22 @@ class MainMenu(QWidget):
         super().__init__()
 
         self.setWindowTitle("Momentum")
+        self.resize(1920, 1080)
         self._controller = controller
         self._on_start_race = on_start_race
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
+
+        logo = QLabel()
+        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo_pixmap = QPixmap(str(LOGO_PATH))
+        if not logo_pixmap.isNull():
+            logo.setPixmap(
+                logo_pixmap.scaledToWidth(260, Qt.TransformationMode.SmoothTransformation)
+            )
+            layout.addWidget(logo)
 
         header = QLabel("Momentum")
         header.setStyleSheet(f"color: {MENU_FOREGROUND_1}; font-size: 28px; font-weight: 700;")
@@ -308,6 +323,7 @@ def main():
     apply_accessibility(app, load_settings())
 
     window = MainMenu()
+    window.resize(1920, 1080)
     window.show()
 
     sys.exit(app.exec())

@@ -196,6 +196,8 @@ class RaceWindow(QWidget):
         layout.addWidget(self._status)
         layout.addWidget(RaceOnTrackWidget(track, self._controller))
 
+        self.resize(1920, 1080)
+
         # Check periodically whether the race has completed so the status label can update.
         self._finish_timer = QTimer(self)
         self._finish_timer.timeout.connect(self._check_finished)
@@ -233,7 +235,7 @@ def main() -> int:
 
     # Create the main race window and display it.
     window = RaceWindow(track)
-    window.resize(1200, 850)
+    window.resize(1920, 1080)
     window.show()
 
     # Hand control to the Qt event loop and return the exit code to the shell.
