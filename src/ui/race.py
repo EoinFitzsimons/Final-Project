@@ -66,18 +66,18 @@ class RaceOnTrackWidget(QWidget):
     ) -> QPainterPath:
         # QPainterPath is used here as the visible centreline that cars travel along.
         path = QPainterPath()
-        path.moveTo(center.x() + half_straight, center.y() - turn_r)
-        path.lineTo(center.x() - half_straight, center.y() - turn_r)
-        path.arcTo(
+        path.moveTo(center.x() + half_straight, center.y() - turn_r) # Start at the top right corner of the track.
+        path.lineTo(center.x() - half_straight, center.y() - turn_r) # Draw the straight section
+        path.arcTo( #Draw the top left corner of the track.
             center.x() - half_straight - turn_r,
-            center.y() - turn_r,
-            turn_r * 2.0,
+            center.y() - turn_r, 
+            turn_r * 2.0, 
             turn_r * 2.0,
             90.0,
             180.0,
         )
-        path.lineTo(center.x() + half_straight, center.y() + turn_r)
-        path.arcTo(
+        path.lineTo(center.x() + half_straight, center.y() + turn_r) # Draw the straight section
+        path.arcTo( #Draw the bottom right corner of the track.
             center.x() + half_straight - turn_r,
             center.y() - turn_r,
             turn_r * 2.0,
@@ -85,7 +85,7 @@ class RaceOnTrackWidget(QWidget):
             270.0,
             180.0,
         )
-        path.closeSubpath()
+        path.closeSubpath() #Close the path to ensure it is a continuous loop.
         return path
 
     def _progress_fraction(self, progress_m: float) -> float:
@@ -113,7 +113,7 @@ class RaceOnTrackWidget(QWidget):
     def paintEvent(self, event) -> None:  # type: ignore[override]
         # QPainter is the Qt drawing API used to render the track, checkpoints, and car markers.
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing) #Antialiasing smooths the edges of the track and car markers for a cleaner appearance. It is computationally expensive for complex shapes, but the track is a simple shape. https://runebook.dev/en/docs/qt/quick3d-asset-conditioning-anti-aliasing
         painter.fillRect(self.rect(), QColor(RACE_BACKGROUND))
 
         # Rebuild the layout paths for the current window size before drawing.
@@ -171,7 +171,7 @@ class RaceOnTrackWidget(QWidget):
         return self.minimumSize()
 
 
-class RaceWindow(QWidget):
+class RaceWindow(QWidget): #This class is the main window for the live race
     def __init__(
         self,
         track: TrackDefinition,
