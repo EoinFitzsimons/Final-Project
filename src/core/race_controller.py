@@ -28,7 +28,7 @@ class RaceController:
         self,
         track: TrackDefinition,
         num_cars: int = 10,
-        max_ticks: int = 5000,
+        max_ticks: int = 5000, # Maximum number of simulation ticks in the race, limiting the race duration to avoid infinite loops in case of bugs or unexpected behavior.
     ) -> None:
         self.track = track
         self.num_cars = num_cars
@@ -76,7 +76,7 @@ class RaceController:
         max_speed = car.base_top_speed * (0.5 + speed_factor * 0.5)
 
         # Introduce a small amount of random variation.
-        variance = _RNG.uniform(0.95, 1.05)
+        variance = _RNG.uniform(0.95, 1.05) #equal chance of being slower or faster than the calculated speed.
 
         # Apply consistency and variance to the final speed.
         effective_speed = max_speed * consistency_factor * variance
