@@ -52,7 +52,7 @@ class RaceController:
         _RNG.shuffle(archetypes)
 
         self.drivers = [
-            generate_driver(archetypes[i % len(archetypes)])
+            generate_driver(archetypes[i % len(archetypes)]) #Use one of the shuffled archetypes for each driver, cycling through them if there are more drivers than archetypes.
             for i in range(self.num_cars)
         ]
         driver_ids = [d.id for d in self.drivers]
