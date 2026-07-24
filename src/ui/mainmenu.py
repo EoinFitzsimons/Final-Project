@@ -95,7 +95,7 @@ def validate_settings(raw):
 
 
 def get_theme(theme):
-    # Each theme is represented as a full stylesheet so the whole UI changes together.
+    # Each theme is represented as a full stylesheet so the whole UI changes together. f tells Python to replace variavles with their values.
     if theme == "standard":
         return f"""
     QWidget {{ background: {MENU_BACKGROUND_1}; color: {MENU_FOREGROUND_1}; }}

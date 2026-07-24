@@ -23,6 +23,23 @@ class RaceResult:
     finishing_order: List[Car] = field(default_factory=list)
 
 
+@dataclass(frozen=True) #dataclass decorator is used to automatically generate special methods like __init__() and __repr__() for the class. frozen=True makes the instances of this class immutable, meaning that once an instance is created, its attributes cannot be modified. This is useful for telemetry data, which should not change after being recorded. https://docs.python.org/3/library/dataclasses.html
+class RaceTelemetry:
+    position: int
+    car_id: int
+    driver_id: int
+    driver_name: str
+    gap_to_leader_m: float
+    current_lap: int
+    lap_time_s: float
+    current_checkpoint_id: int
+    current_checkpoint_name: str
+    current_speed_kmh: float
+    tyre_condition: int
+    fuel_load: int
+    race_status: str
+
+
 class RaceController:
     def __init__(
         self,
@@ -84,6 +101,78 @@ class RaceController:
         # Convert km/h to m/s (one simulation tick equals one second).
         return (effective_speed * 1000.0) / 3600.0
 
+    def _current_checkpoint(self, progress_m: float) -> tuple[int, str]:
+        if not self.track.checkpoints:
+            return 0, ""
+
+        fraction = (progress_m % self.lap_distance) / max(self.lap_distance, 1.0) #Calculate the fraction of the current lap completed by dividing the distance travelled in the current lap by the total lap distance. The modulo operator (%) is used to get the distance into the current lap, and max() ensures that we don't divide by zero if the lap distance is zero. https://www.geeksforgeeks.org/python/what-is-a-modulo-operator-in-python/
+        checkpoint = self.track.checkpoints[0]
+
+        for candidate in self.track.checkpoints: #find current checkpoint by compariong the fraction of lap completed to the checkpoints' positions. The last checkpoint crossed is the current checkpoint.
+            if fraction >= candidate.position:
+                checkpoint = candidate
+            else:
+                break
+
+        return checkpoint.id, checkpoint.name
+
+    def _lap_time_seconds(self, progress_m: float, current_speed_kmh: float) -> float:
+        current_speed_mps = current_speed_kmh / 3.6
+        if current_speed_mps <= 0.0:
+            return 0.0
+
+        distance_into_lap = progress_m % max(self.lap_distance, 1.0)
+        return distance_into_lap / current_speed_mps #Calculate the time taken to travel the distance into the current lap, dividing by the current speed in m/s.
+
+    def _ordered_cars(self) -> list[Car]:
+        return sorted(
+            self.cars,
+            key=lambda car: self._progress.get(car.id, 0.0), #Sort the cars based on their progress in the race. Lambda is used here over a function as it is a simple one-line operation that doesn't require a separate function definition. The get() method is used to retrieve the progress of each car, defaulting to 0.0 if the car's ID is not found in the _progress dictionary. This ensures that all cars are included in the sorting, even if they haven't started moving yet.
+            reverse=True, #Sort in descending order so that the car with the most progress appears first in the list.
+        )
+
+    def get_telemetry(self) -> list[RaceTelemetry]:
+        ordered = self._ordered_cars()
+        if not ordered:
+            return []
+
+        leader_progress = self._progress.get(ordered[0].id, 0.0)
+        drivers_by_id = {driver.id: driver for driver in self.drivers}
+
+        telemetry: list[RaceTelemetry] = []
+        for position, car in enumerate(ordered, start=1):
+            progress = self._progress.get(car.id, 0.0)
+            driver = drivers_by_id.get(car.driver_id)
+            if driver is None:
+                continue
+
+            checkpoint_id, checkpoint_name = self._current_checkpoint(progress)
+            gap_to_leader_m = max(0.0, leader_progress - progress)
+            lap_time_s = self._lap_time_seconds(progress, car.current_speed)
+
+            car.current_position = position
+            car.current_checkpoint = checkpoint_id
+
+            telemetry.append(
+                RaceTelemetry(
+                    position=position,
+                    car_id=car.id,
+                    driver_id=driver.id,
+                    driver_name=driver.name,
+                    gap_to_leader_m=gap_to_leader_m,
+                    current_lap=car.current_lap,
+                    lap_time_s=lap_time_s,
+                    current_checkpoint_id=checkpoint_id,
+                    current_checkpoint_name=checkpoint_name,
+                    current_speed_kmh=car.current_speed,
+                    tyre_condition=car.tyre_condition,
+                    fuel_load=car.fuel_load,
+                    race_status=car.race_status,
+                )
+            )
+
+        return telemetry
+
     def step(self) -> None:
         # Update every active car for one simulation tick.
         for car, driver in zip(self.cars, self.drivers):
@@ -121,11 +210,7 @@ class RaceController:
             self.step()
 
         # Order cars by the total distance travelled.
-        ordered = sorted(
-            self.cars,
-            key=lambda c: self._progress[c.id],
-            reverse=True,
-        )
+        ordered = self._ordered_cars()
 
         return RaceResult(finishing_order=ordered)
 

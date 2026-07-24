@@ -6,11 +6,22 @@ from __future__ import annotations #Postpones evaluation of annotations: They ar
 
 import sys
 from pathlib import Path
+from typing import Callable #callable checks if an object can be called like a function. https://www.geeksforgeeks.org/python/callable-in-python/
 
 # Qt provides the event loop, timers, drawing primitives, and widget classes used to build the live race window.
 from PyQt6.QtCore import QPointF, QTimer, Qt
 from PyQt6.QtGui import QColor, QPainter, QPainterPath, QPen
-from PyQt6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import ( 
+    QApplication,
+    QAbstractItemView,
+    QHeaderView,
+    QLabel,
+    QHBoxLayout,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
+    QWidget,
+) 
 
 # Add the repository root to sys.path so this file can be run directly and still import the src package.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -18,19 +29,27 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 # Local project imports keep the race simulation, track model, and layout math separate from the UI layer.
-from src.core.race_controller import RaceController
+from src.core.race_controller import RaceController, RaceTelemetry
 from src.core.track_geometry import build_layout_paths, checkpoint_point_on_layout
 from src.models.track import TrackDefinition, load_track_definition
 from src.ui.colours import CAR_COLOURS, CHECKPOINT, FINISHED_CAR, RACE_BACKGROUND, ROAD, TEXT
 
 
-class RaceOnTrackWidget(QWidget):
-    def __init__(self, track: TrackDefinition, controller: RaceController, parent: QWidget | None = None) -> None:
+class RaceOnTrackWidget(QWidget): #This class is a custom QWidget that displays the racetrack, checkpoints, and cars in a live race simulation
+    def __init__(
+        self,
+        track: TrackDefinition,
+        controller: RaceController,
+        telemetry_callback: Callable[[list[RaceTelemetry]], None] | None = None,
+        parent: QWidget | None = None,
+    ) -> None:
         super().__init__(parent)
         # Store the loaded track definition so the widget knows the layout and checkpoints to draw.
         self._track = track
         # Store the simulation controller so the widget can read race progress and advance the race.
         self._controller = controller
+        # Keep a callback so the race window can refresh telemetry tables each tick.
+        self._telemetry_callback = telemetry_callback
         # Keep the latest QPointF for each car so the paint routine can draw them without recomputing everything.
         self._car_positions: dict[int, QPointF] = {}
         # QTimer drives the animation by calling _advance_race at a fixed interval.
@@ -42,6 +61,7 @@ class RaceOnTrackWidget(QWidget):
         self.setMinimumSize(1000, 700)
         # Populate the initial coordinate cache so the first paint has valid positions.
         self._refresh_car_positions()
+        self._publish_telemetry()
 
     def _advance_race(self) -> None:
         # Active cars are the ones still moving; once none remain the animation can stop.
@@ -49,14 +69,22 @@ class RaceOnTrackWidget(QWidget):
         if not active_cars:
             self._timer.stop()
             self._refresh_car_positions()
+            self._publish_telemetry()
             self.update()
             return
 
         # Advance the simulation by one tick, then refresh the cached screen coordinates.
         self._controller.step()
         self._refresh_car_positions()
+        self._publish_telemetry()
         # Trigger a repaint so the cars appear to move on screen.
         self.update()
+
+    def _publish_telemetry(self) -> None:
+        if self._telemetry_callback is None:
+            return
+
+        self._telemetry_callback(self._controller.get_telemetry())
 
     def _build_centerline_path(
         self,
@@ -193,8 +221,28 @@ class RaceWindow(QWidget): #This class is the main window for the live race
         # QLabel shows the final race state once the simulation has finished.
         self._status = QLabel("Race running...")
         self._status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._status.setWordWrap(True)
         layout.addWidget(self._status)
-        layout.addWidget(RaceOnTrackWidget(track, self._controller))
+
+        self._race_widget = RaceOnTrackWidget(
+            track,
+            self._controller,
+            telemetry_callback=self._update_telemetry_tables,
+        )
+        layout.addWidget(self._race_widget, 3)
+
+        tables_layout = QHBoxLayout()
+        self._race_info_table = self._create_table(
+            ["Position", "Driver Name", "Gap to Leader", "Current Lap", "Race Status"]
+        )
+        self._vehicle_table = self._create_table(
+            ["Driver Name", "Current Checkpoint", "Current Speed", "Tyre Condition", "Fuel Load"]
+        )
+        tables_layout.addWidget(self._race_info_table, 1)
+        tables_layout.addWidget(self._vehicle_table, 1)
+        layout.addLayout(tables_layout, 2)
+
+        self._update_telemetry_tables(self._controller.get_telemetry())
 
         self.resize(1920, 1080)
 
@@ -209,20 +257,57 @@ class RaceWindow(QWidget): #This class is the main window for the live race
         if active:
             return
 
-        # Sort by travelled distance to produce the finishing order shown in the label.
-        ordered = sorted(
-            self._controller.cars,
-            key=lambda car: self._controller._progress.get(car.id, 0.0),
-            reverse=True,
-        )
+        ordered = self._controller.get_telemetry()
 
         # Build a plain text result summary for the finished race.
         lines = ["Race finished", ""]
-        for position, car in enumerate(ordered, start=1):
-            lines.append(f"{position}. Car {car.id} - Driver {car.driver_id} - Lap {car.current_lap}")
+        for record in ordered:
+            lines.append(
+                f"{record.position}. {record.driver_name} - Lap {record.current_lap} - {record.race_status}"
+            )
 
         self._status.setText("\n".join(lines))
         self._finish_timer.stop()
+
+    def _create_table(self, headers: list[str]) -> QTableWidget:
+        table = QTableWidget(0, len(headers), self)
+        table.setHorizontalHeaderLabels(headers)
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        vertical_header = table.verticalHeader()
+        assert vertical_header is not None
+        vertical_header.setVisible(False)
+
+        header = table.horizontalHeader()
+        assert header is not None
+
+        header.setStretchLastSection(True)
+        for column in range(len(headers)):
+            header.setSectionResizeMode(column, QHeaderView.ResizeMode.Stretch)
+        return table
+
+    def _set_table_item(self, table: QTableWidget, row: int, column: int, text: str) -> None:
+        item = QTableWidgetItem(text)
+        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+        table.setItem(row, column, item)
+
+    def _update_telemetry_tables(self, telemetry: list[RaceTelemetry]) -> None:
+        self._race_info_table.setRowCount(len(telemetry))
+        self._vehicle_table.setRowCount(len(telemetry))
+
+        for row, record in enumerate(telemetry):
+            self._set_table_item(self._race_info_table, row, 0, str(record.position))
+            self._set_table_item(self._race_info_table, row, 1, record.driver_name)
+            self._set_table_item(self._race_info_table, row, 2, f"{record.gap_to_leader_m:.1f} m")
+            self._set_table_item(self._race_info_table, row, 3, str(record.current_lap))
+            self._set_table_item(self._race_info_table, row, 4, record.race_status)
+
+            self._set_table_item(self._vehicle_table, row, 0, record.driver_name)
+            self._set_table_item(self._vehicle_table, row, 1, record.current_checkpoint_name)
+            self._set_table_item(self._vehicle_table, row, 2, f"{record.current_speed_kmh:.1f} km/h")
+            self._set_table_item(self._vehicle_table, row, 3, str(record.tyre_condition))
+            self._set_table_item(self._vehicle_table, row, 4, str(record.fuel_load))
 
 
 def main() -> int:
