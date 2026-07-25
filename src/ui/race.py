@@ -61,7 +61,6 @@ class RaceOnTrackWidget(QWidget): #This class is a custom QWidget that displays 
         self.setMinimumSize(1000, 700)
         # Populate the initial coordinate cache so the first paint has valid positions.
         self._refresh_car_positions()
-        self._publish_telemetry()
 
     def _advance_race(self) -> None:
         # Active cars are the ones still moving; once none remain the animation can stop.
@@ -138,7 +137,7 @@ class RaceOnTrackWidget(QWidget): #This class is a custom QWidget that displays 
             fraction = self._progress_fraction(progress)
             self._car_positions[car.id] = centerline.pointAtPercent(fraction)
 
-    def paintEvent(self, event) -> None:  # type: ignore[override]
+    def paintEvent(self, event) -> None:  # type: ignore[override] this does not have an underscore as it is a Qt event handler, not a private method. https://doc.qt.io/qt-6/qwidget.html#paintEvent
         # QPainter is the Qt drawing API used to render the track, checkpoints, and car markers.
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing) #Antialiasing smooths the edges of the track and car markers for a cleaner appearance. It is computationally expensive for complex shapes, but the track is a simple shape. https://runebook.dev/en/docs/qt/quick3d-asset-conditioning-anti-aliasing
