@@ -7,7 +7,7 @@ Final-Project
 │   ├── Folder Structure.md - This file, explaining what each basic file and folder does
 │   ├── MVP Scope.md
 │   ├── Proposal Template.docx - The template provided to me
-│   ├── Proposal.docx - My proposal, foilling the template
+│   ├── Proposal.docx - My proposal, following the template
 │   └── sources.md - Online sorces that I research and use for decisions
 ├── LICENSE - legal stuff
 ├── README.md - what a user out to read before using
