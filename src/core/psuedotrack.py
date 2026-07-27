@@ -31,7 +31,7 @@ FUNCTION CreateTrack()
 END FUNCTION
 
 FUNCTION GenerateCheckpoints(Track)
-    For eacg turn and straight in Track
+    For each turn and straight in Track
         CREATE Checkpoint
         Checkpoint.ID = Unique ID
         Checkpoint.Position = Centre of the track segment
