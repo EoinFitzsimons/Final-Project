@@ -60,15 +60,14 @@ def checkpoint_point_on_layout(center: QPointF, half_straight: float, turn_r: fl
     position = position % 1.0
     # Nudge the quarter checkpoints slightly away from the exact corners so the labels do not stack on the start/finish marker.
     if abs(position - 0.25) < 1e-9:
-        position = 0.24
+        position = 0.25
     elif abs(position - 0.75) < 1e-9:
         position = 1
 
     cx = center.x()
     cy = center.y()
 
-    if position < 0.25:
-        # Top straight: from right to left.
+    if position <= 0.25: 
         frac = position / 0.25
         x = cx + half_straight - (2.0 * half_straight) * frac
         y = cy - turn_r
