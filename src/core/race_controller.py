@@ -32,6 +32,7 @@ class RaceTelemetry:
     gap_to_leader_m: float
     current_lap: int
     lap_time_s: float
+    lap_times: list[float]
     current_checkpoint_id: int
     current_checkpoint_name: str
     current_speed_kmh: float
@@ -63,6 +64,12 @@ class RaceController:
         # Store the distance travelled by each car.
         self._progress: Dict[int, float] = {}
 
+        # Store completed lap times for each car.
+        self._lap_times: Dict[int, List[float]] = {}
+
+        # Store the distance when each car started its current lap.
+        self._lap_start_progress: Dict[int, float] = {}
+
     def setup(self) -> None:
         # Generate the drivers for the race.
         archetypes = list(ARCHETYPES)
@@ -86,7 +93,8 @@ class RaceController:
         # Initialise every car's progress to zero metres.
         for car in self.cars:
             self._progress[car.id] = 0.0
-
+            self._lap_times[car.id] = []
+            self._lap_start_progress[car.id] = 0.0
     def _calculate_tick_speed(self, car: Car, driver: Driver) -> float:
         # Convert driver statistics into scaling factors.
         speed_factor = driver.stats.speed / 100.0
@@ -165,6 +173,7 @@ class RaceController:
                     gap_to_leader_m=gap_to_leader_m,
                     current_lap=car.current_lap,
                     lap_time_s=lap_time_s,
+                    lap_times=self._lap_times.get(car.id, []),
                     current_checkpoint_id=checkpoint_id,
                     current_checkpoint_name=checkpoint_name,
                     current_speed_kmh=car.current_speed,
@@ -198,8 +207,19 @@ class RaceController:
             car.current_speed = speed_mps * 3.6
 
             # Update the current lap from the total distance travelled.
+            previous_lap = car.current_lap
             completed_laps = int(self._progress[car.id] // self.lap_distance)
             car.current_lap = completed_laps
+
+            # Record lap completion times.
+            if completed_laps > previous_lap:
+                lap_time = self._progress[car.id] - self._lap_start_progress[car.id]
+
+                self._lap_times[car.id].append(lap_time / max(car.current_speed / 3.6, 1))
+
+                self._lap_start_progress[car.id] = (
+                    completed_laps * self.lap_distance
+                )
 
             # Mark the car as finished once the race distance is reached.
             if self._progress[car.id] >= self.race_distance:

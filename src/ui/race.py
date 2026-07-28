@@ -15,6 +15,7 @@ from PyQt6.QtWidgets import (
     QApplication,
     QAbstractItemView,
     QHeaderView,
+    QStackedWidget,
     QLabel,
     QHBoxLayout,
     QPushButton,
@@ -84,7 +85,8 @@ class RaceOnTrackWidget(QWidget): #This class is a custom QWidget that displays 
         if self._telemetry_callback is None:
             return
 
-        self._telemetry_callback(self._controller.get_telemetry())
+        telemetry = self._controller.get_telemetry()
+        self._telemetry_callback(telemetry)
 
     def _build_centerline_path(
         self,
@@ -215,6 +217,7 @@ class RaceWindow(QWidget): #This class is the main window for the live race
             controller = RaceController(track, num_cars=10, max_ticks=5000)
             controller.setup()
         self._controller = controller
+        self._telemetry_history: list[list[RaceTelemetry]] = []
 
         # QVBoxLayout stacks the status label above the race canvas.
         layout = QVBoxLayout(self)
@@ -236,12 +239,20 @@ class RaceWindow(QWidget): #This class is the main window for the live race
 
         layout.addLayout(status_layout)
 
+        self._race_stack = QStackedWidget()
+
         self._race_widget = RaceOnTrackWidget(
             track,
             self._controller,
             telemetry_callback=self._update_telemetry_tables,
         )
-        layout.addWidget(self._race_widget, 3)
+
+        self._results_widget = QWidget()
+
+        self._race_stack.addWidget(self._race_widget)
+        self._race_stack.addWidget(self._results_widget)
+
+        layout.addWidget(self._race_stack, 3)
 
         tables_layout = QHBoxLayout()
         self._race_info_table = self._create_table(
@@ -278,8 +289,13 @@ class RaceWindow(QWidget): #This class is the main window for the live race
                 f"{record.position}. {record.driver_name} - Lap {record.current_lap} - {record.race_status}"
             )
 
-        self._status.setText("\n".join(lines))
         self._finish_timer.stop()
+
+        self._create_results_screen(
+            self._telemetry_history
+        )
+        # Switch the stacked widget to show the results screen instead of the live race.
+        self._race_stack.setCurrentIndex(1)
 
     def _create_table(self, headers: list[str]) -> QTableWidget:
         table = QTableWidget(0, len(headers), self)
@@ -305,6 +321,7 @@ class RaceWindow(QWidget): #This class is the main window for the live race
         table.setItem(row, column, item)
 
     def _update_telemetry_tables(self, telemetry: list[RaceTelemetry]) -> None:
+        self._telemetry_history.append(telemetry.copy())
         if telemetry:
             current_lap = max(record.current_lap for record in telemetry)
             self._lap_counter.setText(
@@ -327,32 +344,109 @@ class RaceWindow(QWidget): #This class is the main window for the live race
             self._set_table_item(self._vehicle_table, row, 4, str(record.fuel_load))
 
     def end_race(self) -> None:
-            # Stop the visual simulation timer.
-            self._race_widget._timer.stop()
+        # Stop the visual simulation timer.
+        self._race_widget._timer.stop()
 
-            # Mark remaining active cars as Did not finish.
-            for car in self._controller.cars:
-                if car.race_status == "Active":
-                        car.race_status = "DNF"
+        # Mark remaining active cars as Did not finish.
+        for car in self._controller.cars:
+            if car.race_status == "Active":
+                car.race_status = "DNF"
 
-            # Refresh final telemetry.
-            telemetry = self._controller.get_telemetry()
-            self._update_telemetry_tables(telemetry)
+        # Get final race data after stopping.
+        telemetry = self._controller.get_telemetry()
 
-            # Display results.
-            lines = [
-                "Race ended early",
-                ""                ]
+        # Update live tables one final time.
+        self._update_telemetry_tables(telemetry)
 
-            for record in telemetry:
-                lines.append(
-                    f"{record.position}. {record.driver_name} - Lap {record.current_lap}"
-                )
+        # Build results screen using final telemetry.
+        self._create_results_screen(telemetry)
 
-            self._status.setText("\n".join(lines))
+        # Switch the stacked widget to show the results screen instead of the live race.
+        self._race_stack.setCurrentIndex(1)
 
-            # Prevent pressing the button multiple times.
-            self._end_race_button.setEnabled(False)
+        self._end_race_button.setEnabled(False)
+
+    def _create_results_screen(self, telemetry_history):
+        layout = QVBoxLayout(self._results_widget)
+
+        title = QLabel("Race Results")
+        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title)
+
+        table = QTableWidget(
+            0,
+            self._controller.track.total_laps + 2
+        )
+
+        headers = ["Driver"]
+
+        for lap in range(1, self._controller.track.total_laps + 1):
+            headers.append(f"Lap {lap}")
+
+        headers.extend(["Final Position", "Status"])
+
+        table.setHorizontalHeaderLabels(headers)
+
+        # Prevent scrollbars from appearing by fitting the entire results table on screen.
+        table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        table.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        # Make columns compact enough to display all laps.
+        header = table.horizontalHeader()
+        assert header is not None # Ensure the header is available
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
+
+        # Set sensible widths.
+        table.setColumnWidth(0, 150)  # Driver name
+
+        for column in range(1, len(headers)):
+            table.setColumnWidth(column, 80)  # Lap times, final position, and status
+
+        final = self._controller.get_telemetry()
+
+        for record in final:
+            row = table.rowCount()
+            table.insertRow(row)
+
+            table.setItem(
+                row,
+                0,
+                QTableWidgetItem(record.driver_name)
+            )
+
+            # Fill lap columns with completed lap times.
+            for lap in range(1, self._controller.track.total_laps + 1):
+
+                if lap <= len(record.lap_times):
+                    lap_time = record.lap_times[lap - 1]
+
+                    table.setItem(
+                        row,
+                        lap,
+                        QTableWidgetItem(f"{lap_time:.2f}s")
+                    )
+                else:
+                    table.setItem(
+                        row,
+                        lap,
+                        QTableWidgetItem("-")
+                    )
+
+            table.setItem(
+                row,
+                len(headers)-2,
+                QTableWidgetItem(str(record.position))
+            )
+
+            table.setItem(
+                row,
+                len(headers)-1,
+                QTableWidgetItem(record.race_status)
+            )
+
+        layout.addWidget(table)
+
+        self._results_table = table            
 
 
 def main() -> int:
