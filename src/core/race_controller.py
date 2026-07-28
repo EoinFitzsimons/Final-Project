@@ -76,7 +76,10 @@ class RaceController:
 
         # Create a car for each driver using the starting grid order.
         self.cars = [
-            create_car(driver_ids, starting_grid_position=i + 1)
+            create_car(
+                driver_id=driver_ids[i],
+                starting_grid_position=i + 1
+            )
             for i in range(self.num_cars)
         ]
 
@@ -170,6 +173,12 @@ class RaceController:
                     race_status=car.race_status,
                 )
             )
+
+            print(
+    car.id,
+    car.driver_id,
+    driver.name
+)
 
         return telemetry
 

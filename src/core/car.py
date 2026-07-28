@@ -62,31 +62,22 @@ class Car:
         return cls._id_counter
 
 
-def create_car(existing_driver_ids: List[int], starting_grid_position: Optional[int] = None) -> Car:
+def create_car(driver_id: int, starting_grid_position: Optional[int] = None) -> Car:
     # factory function used to create a fully initialised Car with a valid driver assigned
-
-    if not existing_driver_ids:
-        raise ValueError("No driver IDs provided")  # cannot create a car without at least one valid driver
-
-    driver_id = random.choice(existing_driver_ids)  # randomly assign a driver from available pool
-
-    car = Car(
+    return Car(
         driver_id=driver_id,
         current_position=starting_grid_position if starting_grid_position is not None else 0
-    )  # create car with initial race state
-
-    return car
-
+    )
 
 if __name__ == "__main__":
-    # simple test harness to validate Car creation logic outside the simulation engine
+    # simple test to validate Car creation logic outside the simulation engine
 
-    drivers = [101, 102, 103, 104]  # example driver pool
+    drivers = [101, 102, 103, 104] # example driver pool
 
     cars = [
-        create_car(drivers, i + 1)  # assign grid positions starting from 1
-        for i in range(5)
+        create_car(driver_id, i + 1)
+        for i, driver_id in enumerate(drivers)
     ]
 
     for car in cars:
-        print(car)  # output dataclass representation for debugging
+        print(car)  # output information for debugging
