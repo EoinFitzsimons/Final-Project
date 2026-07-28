@@ -1,2 +1,2 @@
 # Final-Project
-NCI Final Project, starting from scratch
+NCI Final Project, Momentum - Motorsports Simulation.
