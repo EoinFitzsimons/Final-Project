@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
     QHeaderView,
     QLabel,
     QHBoxLayout,
+    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -221,7 +222,19 @@ class RaceWindow(QWidget): #This class is the main window for the live race
         self._status = QLabel("Race running...")
         self._status.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self._status.setWordWrap(True)
-        layout.addWidget(self._status)
+
+        self._lap_counter = QLabel("Lap: 0 / 0")
+        self._lap_counter.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self._end_race_button = QPushButton("End Race")
+        self._end_race_button.clicked.connect(self.end_race)
+
+        status_layout = QHBoxLayout()
+        status_layout.addWidget(self._status)
+        status_layout.addWidget(self._lap_counter)
+        status_layout.addWidget(self._end_race_button)
+
+        layout.addLayout(status_layout)
 
         self._race_widget = RaceOnTrackWidget(
             track,
@@ -292,6 +305,11 @@ class RaceWindow(QWidget): #This class is the main window for the live race
         table.setItem(row, column, item)
 
     def _update_telemetry_tables(self, telemetry: list[RaceTelemetry]) -> None:
+        if telemetry:
+            current_lap = max(record.current_lap for record in telemetry)
+            self._lap_counter.setText(
+                f"Lap: {current_lap} / {self._controller.track.total_laps}"
+            )
         self._race_info_table.setRowCount(len(telemetry))
         self._vehicle_table.setRowCount(len(telemetry))
 
@@ -307,6 +325,34 @@ class RaceWindow(QWidget): #This class is the main window for the live race
             self._set_table_item(self._vehicle_table, row, 2, f"{record.current_speed_kmh:.1f} km/h")
             self._set_table_item(self._vehicle_table, row, 3, str(record.tyre_condition))
             self._set_table_item(self._vehicle_table, row, 4, str(record.fuel_load))
+
+    def end_race(self) -> None:
+            # Stop the visual simulation timer.
+            self._race_widget._timer.stop()
+
+            # Mark remaining active cars as Did not finish.
+            for car in self._controller.cars:
+                if car.race_status == "Active":
+                        car.race_status = "DNF"
+
+            # Refresh final telemetry.
+            telemetry = self._controller.get_telemetry()
+            self._update_telemetry_tables(telemetry)
+
+            # Display results.
+            lines = [
+                "Race ended early",
+                ""                ]
+
+            for record in telemetry:
+                lines.append(
+                    f"{record.position}. {record.driver_name} - Lap {record.current_lap}"
+                )
+
+            self._status.setText("\n".join(lines))
+
+            # Prevent pressing the button multiple times.
+            self._end_race_button.setEnabled(False)
 
 
 def main() -> int:
