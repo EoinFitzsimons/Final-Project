@@ -47,7 +47,7 @@ SETTINGS_PATH = os.path.join(
     os.path.expanduser("~"),
     ".momentum_accessibility.json"
 )
-
+#Load the logo from the assets folder so it can be replaced without rebuilding the app. parents[2] is used to navigate up twice from the file to the project root, then down into the assets folder.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LOGO_PATH = PROJECT_ROOT / "assets" / "Momentum Logo.png"
 
@@ -284,14 +284,14 @@ class MainMenu(QWidget):
         button_row = QHBoxLayout()
         button_row.setSpacing(12)
 
-        start = QPushButton("Start Race")
-        settings = QPushButton("Settings")
+        self.start_button = QPushButton("Start Race")
+        self.settings_button = QPushButton("Settings")
 
-        start.clicked.connect(self.start_race)
-        settings.clicked.connect(self.open_settings)
+        self.start_button.clicked.connect(self.start_race)
+        self.settings_button.clicked.connect(self.open_settings)
 
-        button_row.addWidget(start)
-        button_row.addWidget(settings)
+        button_row.addWidget(self.start_button)
+        button_row.addWidget(self.settings_button)
         layout.addLayout(button_row)
 
         if self._controller is not None:
