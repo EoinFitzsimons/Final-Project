@@ -402,7 +402,10 @@ class RaceWindow(QWidget): #This class is the main window for the live race
         for column in range(1, len(headers)):
             table.setColumnWidth(column, 80)  # Lap times, final position, and status
 
-        final = self._controller.get_telemetry()
+        final = sorted(
+            self._controller.get_telemetry(),
+            key=lambda record: record.position # Sort by position (lower is better)
+        )
 
         for record in final:
             row = table.rowCount()
