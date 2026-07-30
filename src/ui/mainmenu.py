@@ -42,15 +42,12 @@ DEFAULT_SETTINGS = {
     "ui_scale": 100,
 }
 
-# Store the settings file in the user's home directory so it survives app restarts.
-SETTINGS_PATH = os.path.join(
-    os.path.expanduser("~"),
-    ".momentum_accessibility.json"
-)
 #Load the logo from the assets folder so it can be replaced without rebuilding the app. parents[2] is used to navigate up twice from the file to the project root, then down into the assets folder.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LOGO_PATH = PROJECT_ROOT / "assets" / "Momentum Logo.png"
-
+#Settings file is stored in the data folder so it can be easily found and edited by users. The path is constructed relative to the project root.
+DATA_DIR = PROJECT_ROOT / "src" / "data"
+SETTINGS_PATH = DATA_DIR / "accessibility_settings.json"
 
 def load_settings():
     # Load persisted settings, but fall back to defaults if the file is missing or invalid.
