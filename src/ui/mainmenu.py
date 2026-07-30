@@ -121,15 +121,13 @@ def get_theme(theme):
 
 
 def apply_accessibility(app, settings):
-    # Apply font scaling and theme globally so the entire interface updates at once.
-    font = app.font()
+    if not hasattr(app, "_base_font"): # Store the original font so we can scale it up or down without compounding changes.
+        app._base_font = app.font()
 
-    base_size = font.pointSizeF()
-    if base_size <= 0:
-        base_size = 10
+    font = app._base_font
 
     scale = settings["ui_scale"] / 100.0
-    font.setPointSizeF(max(8.0, base_size * scale))
+    font.setPointSizeF(font.pointSizeF() * scale)
 
     app.setFont(font)
     app.setStyleSheet(get_theme(settings["theme"]))
