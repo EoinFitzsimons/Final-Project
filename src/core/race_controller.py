@@ -226,19 +226,19 @@ class RaceController:
                 car.race_status = "Finished"
 
     def run(self) -> RaceResult:
-        # Create the drivers, cars and initial race state.
         self.setup()
 
-        # Continue running until all cars finish or the tick limit is reached.
         for _ in range(self.max_ticks):
-            active_cars = [c for c in self.cars if c.race_status == "Active"]
-
-            if not active_cars:
-                break
-
             self.step()
 
-        # Order cars by the total distance travelled.
+            winner = any(
+                car.race_status == "Finished"
+                for car in self.cars
+            )
+
+            if winner:
+                break
+
         ordered = self._ordered_cars()
 
         return RaceResult(finishing_order=ordered)

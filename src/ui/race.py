@@ -65,17 +65,18 @@ class RaceOnTrackWidget(QWidget): #This class is a custom QWidget that displays 
         self._refresh_car_positions()
 
     def _advance_race(self) -> None:
-        # Active cars are the ones still moving; once none remain the animation can stop.
-        active_cars = [car for car in self._controller.cars if car.race_status == "Active"]
-        if not active_cars:
-            self._timer.stop()
-            self._refresh_car_positions()
-            self._publish_telemetry()
-            self.update()
-            return
-
-        # Advance the simulation by one tick, then refresh the cached screen coordinates.
+        #Advance the simulation by one tick
         self._controller.step()
+
+        # Stop when the first car finishes.
+        finished_cars = [
+            car for car in self._controller.cars
+            if car.race_status == "Finished"
+        ]
+
+        if finished_cars:
+            self._timer.stop()
+        # refresh the cached screen coordinates.
         self._refresh_car_positions()
         self._publish_telemetry()
         # Trigger a repaint so the cars appear to move on screen.
