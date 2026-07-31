@@ -4,17 +4,20 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-1" parent="1" style="rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="User" vertex="1">
-          <mxGeometry height="60" width="120" x="350" y="260" as="geometry" />
+        <mxCell id="aP0wGA3vQGki2QFzGzCC-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
+          <mxGeometry height="380" width="160" x="330" y="320" as="geometry" />
         </mxCell>
-        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-2" parent="1" style="rounded=0;fillColor=#f8cecc;strokeColor=#b85450;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="UI&lt;br&gt;&lt;br&gt;PYQT6 GUI&lt;br&gt;Main Menu&lt;br&gt;Race &amp;amp; Tables" vertex="1">
-          <mxGeometry height="80" width="120" x="350" y="360" as="geometry" />
+        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-1" parent="1" style="rounded=0;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="User" vertex="1">
+          <mxGeometry height="20" width="40" x="390" y="290" as="geometry" />
         </mxCell>
-        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-3" parent="1" style="rounded=0;fillColor=#ffe6cc;strokeColor=#d79b00;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="Simulation&lt;div&gt;&lt;br&gt;Race Controller&lt;br&gt;Driver Agents&lt;br&gt;Telemetry&lt;/div&gt;" vertex="1">
-          <mxGeometry height="70" width="120" x="350" y="475" as="geometry" />
+        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-2" parent="1" style="rounded=0;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;User Interface&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Main Menu&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Race Screen&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Results Screen&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Driver Tables&lt;/span&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="140" x="340" y="350" as="geometry" />
         </mxCell>
-        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-4" parent="1" style="rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="Database&lt;br&gt;&lt;br&gt;SQLite&lt;br&gt;JSON&lt;br&gt;&lt;br&gt;Drivers&lt;br&gt;Track&lt;br&gt;Settings" vertex="1">
-          <mxGeometry height="120" width="120" x="350" y="590" as="geometry" />
+        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-3" parent="1" style="rounded=0;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="Application Logic&lt;div&gt;&lt;br&gt;Race Controller&lt;br&gt;Drivers&lt;/div&gt;&lt;div&gt;Cars&lt;br&gt;Telemetry&lt;/div&gt;" vertex="1">
+          <mxGeometry height="85" width="120" x="350" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-4" parent="1" style="rounded=0;html=1;align=center;labelPosition=center;verticalLabelPosition=middle;verticalAlign=middle;" value="Data Pers&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;istence&lt;/span&gt;&lt;div&gt;&lt;br&gt;JSON&lt;br&gt;&lt;br&gt;Tracks&lt;br&gt;Accessibility Settings&lt;/div&gt;" vertex="1">
+          <mxGeometry height="100" width="120" x="350" y="585" as="geometry" />
         </mxCell>
         <mxCell id="KO4BeBzGcWdcIeEZ_qHV-5" edge="1" parent="1" source="KO4BeBzGcWdcIeEZ_qHV-1" style="endArrow=classic;html=1;rounded=0;" target="KO4BeBzGcWdcIeEZ_qHV-2" value="">
           <mxGeometry height="50" relative="1" width="50" as="geometry">
@@ -34,8 +37,8 @@
             <mxPoint x="540" y="697" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-8" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;html=1;labelPosition=center;verticalLabelPosition=middle;" value="Reads from and writes to" vertex="1">
-          <mxGeometry height="30" width="150" x="335" y="554.5" as="geometry" />
+        <mxCell id="KO4BeBzGcWdcIeEZ_qHV-8" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;html=1;labelPosition=center;verticalLabelPosition=middle;" value="Loads configuration from" vertex="1">
+          <mxGeometry height="30" width="150" x="335" y="555" as="geometry" />
         </mxCell>
         <mxCell id="KO4BeBzGcWdcIeEZ_qHV-9" parent="1" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;html=1;labelPosition=center;verticalLabelPosition=middle;" value="Runs the race from" vertex="1">
           <mxGeometry height="30" width="150" x="335" y="440" as="geometry" />

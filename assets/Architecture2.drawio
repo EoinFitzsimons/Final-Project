@@ -1,43 +1,43 @@
 <mxfile host="Electron">
   <diagram name="Simulation Engine Component Diagram" id="uihReMaJpglR_rFlaQcb">
-    <mxGraphModel dx="2054" dy="1201" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="Simulation Engine" vertex="1">
-          <mxGeometry height="550" width="600" x="300" y="100" as="geometry" />
+        <mxCell id="container" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;" value="Application Logic" vertex="1">
+          <mxGeometry height="450" width="600" x="300" y="100" as="geometry" />
         </mxCell>
         <mxCell id="race" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Race Controller&#xa;&#xa;race_controller.py&#xa;&#xa;Controls race lifecycle&#xa;Advances simulation state" vertex="1">
-          <mxGeometry height="100" width="250" x="470" y="170" as="geometry" />
+          <mxGeometry height="100" width="250" x="475" y="120" as="geometry" />
         </mxCell>
-        <mxCell id="driver" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Driver Agent&#xa;&#xa;driver.py&#xa;pseudodriver.py&#xa;&#xa;Models driver behaviour&#xa;Maintains driver state" vertex="1">
-          <mxGeometry height="100" width="250" x="470" y="320" as="geometry" />
+        <mxCell id="driver" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Driver Agent&lt;br&gt;&lt;br&gt;driver.py&lt;br&gt;&lt;br&gt;Models driver behaviour&lt;br&gt;Maintains driver state" vertex="1">
+          <mxGeometry height="100" width="250" x="630" y="275" as="geometry" />
         </mxCell>
         <mxCell id="car" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Vehicle Model&#xa;&#xa;car.py&#xa;&#xa;Stores vehicle attributes&#xa;Maintains car state" vertex="1">
-          <mxGeometry height="100" width="250" x="470" y="470" as="geometry" />
+          <mxGeometry height="100" width="250" x="630" y="400" as="geometry" />
         </mxCell>
         <mxCell id="track" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Track System&#xa;&#xa;track_geometry.py&#xa;&#xa;Processes track information" vertex="1">
-          <mxGeometry height="100" width="250" x="470" y="620" as="geometry" />
+          <mxGeometry height="100" width="250" x="320" y="275" as="geometry" />
         </mxCell>
-        <mxCell id="ui" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="PyQt6 UI" vertex="1">
-          <mxGeometry height="70" width="150" x="70" y="320" as="geometry" />
+        <mxCell id="ui" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="User Interface" vertex="1">
+          <mxGeometry height="70" width="150" x="320" y="10" as="geometry" />
         </mxCell>
-        <mxCell id="database" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="SQLite / JSON Data" vertex="1">
-          <mxGeometry height="70" width="170" x="950" y="320" as="geometry" />
+        <mxCell id="database" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Data Persistance" vertex="1">
+          <mxGeometry height="70" width="170" x="710" y="10" as="geometry" />
         </mxCell>
-        <mxCell id="edge1" edge="1" parent="1" source="ui" target="race">
+        <mxCell id="edge1" edge="1" parent="1" source="ui" style="edgeStyle=orthogonalEdgeStyle;" target="race">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge2" edge="1" parent="1" source="race" target="driver">
+        <mxCell id="edge2" edge="1" parent="1" source="race" style="edgeStyle=orthogonalEdgeStyle;" target="driver">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="edge3" edge="1" parent="1" source="driver" target="car">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge4" edge="1" parent="1" source="race" target="track">
+        <mxCell id="edge4" edge="1" parent="1" source="race" style="edgeStyle=orthogonalEdgeStyle;" target="track">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge5" edge="1" parent="1" source="race" target="database">
+        <mxCell id="edge5" edge="1" parent="1" source="race" style="edgeStyle=orthogonalEdgeStyle;" target="database">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>

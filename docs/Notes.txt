@@ -1,0 +1,35 @@
+state where the data is stored, retrieved from
+
+such as json or a database
+
+main flow needs to be more specific
+
+use case diagram is kept very vague
+
+Priority for use case - High Medium Low
+
+2.5 state where they are saved to
+2.6 records to where
+
+Make 2E1 2A2, E1 would be the game crashing
+
+Data requirements, json, database, ERD
+
+Nielsen group Heuristics
+
+Implementation - Add a paragraph of how to achieve what I want
+Wanted XYZ, include XY, Ran out of Z
+Discuss what goes wrong and such
+
+Snippets of code, 6 lines of a method is enough, comments that explain.
+
+Put 1 or 2 wireframes in the GUI and screenshots
+
+Test Plan - Put in fails and passes
+
+Demonstrate the core things that work, demonstrate database updating, could have code screenshots
+
+Towards the end of implementation say how it is scalable
+
+
+
