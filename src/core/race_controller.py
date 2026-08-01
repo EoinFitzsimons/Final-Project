@@ -183,12 +183,6 @@ class RaceController:
                 )
             )
 
-            print(
-    car.id,
-    car.driver_id,
-    driver.name
-)
-
         return telemetry
 
     def step(self) -> None:
