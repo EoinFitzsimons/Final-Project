@@ -33,6 +33,7 @@ from src.ui.colours import (
     MENU_PANEL_BACKGROUND,
     MENU_PANEL_BORDER,
     MENU_PANEL_TEXT,
+    MENU_COLOURED_TEXT,
 )
 
 
@@ -92,7 +93,7 @@ def validate_settings(raw):
 
 
 def get_theme(theme):
-    # Each theme is represented as a full stylesheet so the whole UI changes together. f tells Python to replace variavles with their values.
+    # Each theme is represented as a full stylesheet so the whole UI changes together. f tells Python to replace variables with their values.
     if theme == "standard":
         return f"""
     QWidget {{ background: {MENU_BACKGROUND_1}; color: {MENU_FOREGROUND_1}; }}
@@ -275,9 +276,9 @@ class MainMenu(QWidget):
         header.setStyleSheet(f"color: {MENU_FOREGROUND_1}; font-size: 28px; font-weight: 700;")
         layout.addWidget(header)
 
-        intro = QLabel("Select a theme, review the field, then launch the live race.")
+        intro = QLabel("Motorsport Simulation.")
         intro.setWordWrap(True)
-        intro.setStyleSheet(f"color: {MENU_MUTED_TEXT};")
+        intro.setStyleSheet(f"color: {MENU_COLOURED_TEXT};")
         layout.addWidget(intro)
 
         button_row = QHBoxLayout()
