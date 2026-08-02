@@ -12,12 +12,9 @@ Personas doccumentation - mapping variables - Matrix Table
 
 Starting with 1 tier then expand -
 
-
 # Do
 
 Personas variables Matrix
-
-
 
 Psuedocode for generation of drivers
 
@@ -40,3 +37,33 @@ Document it all. For implementation section. Make note of challenges. Makes chan
 Start with more for documention then go less. Start with less with coding then go more.
 
 Thursday 21st 1500
+
+
+# Poster Headings
+
+## Project Title
+
+Student Name, Programme
+
+## Overview
+
+Please add your content here using this font size which is 28.
+
+Your overview should briefly summarize what your project is in two or three lines.  Please don’t add any images here.
+
+## Motivation
+
+Please add your content here using this font size which is 28.
+
+Here you should explain why you undertook this project.  Who are the
+target audience of your application? What is the need that it addresses? You may add charts or images to support if appropriate.
+
+## How it works
+
+Please add your content here using this font size which is 28.
+
+How does the application work?  What techniques have you used?  Are there any important algorithms? You may also add a screenshot to support your text.
+
+## Technologies
+
+Add the logos of the technologies which you used throughout your project.
