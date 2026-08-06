@@ -21,7 +21,7 @@ def build_app() -> QApplication:
 def main() -> int:
     app = build_app()
 
-    # Load the bundled track definition so both the menu and preview use the same source of truth.
+    # Load the bundled track definition so both the menu and preview use the same source. (Preview removed.)
     track_path = Path(__file__).resolve().parent / "src" / "data" / "track.json"
     track = load_track_definition(track_path)
 
